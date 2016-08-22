@@ -1,0 +1,82 @@
+2001 number;2001 description;2007 number;2007 description;;comment
+;;1;funct;;Didn't exist as separate cat
+1;Pronoun@All pronouns;9;ipron;;
+;;11;verb;;
+;;12;auxverb;;
+;;16;adverb;;
+;;18;conj;;
+;;20;quant;;
+;;250;relativ;;
+1;Pronoun@All pronouns;2;pronoun;;
+;;3;ppron;;"personal pronoun, didn't exist as separate cat; most words occur in included cats"
+2;I@1st person singular;4;i;;
+3;We@1st person plural;5;we;;
+4;Self@Total 1st person;;;;
+5;You@Total 2nd person;6;you;;
+6;Other@Total 3rd person;7;shehe;;3d person split in singular and plural
+6;Other@Total 3rd person;8;they;;3d person split in singular and plural
+7;Negate@Negations;19;negate;;
+8;Assent@Assents;462;assent;;
+9;Article@Articles;10;article;;
+10;Preps@Prepositions;17;preps;;
+11;Number@Numbers;21;number;;
+12;Affect;125;affect;;
+13;Posemo@Positive affect;126;posemo;;
+14;Posfeel@Positive feelings;;;;Removed
+15;Optim@Optimism;;;;Removed
+16;Negemo@Negative affect;127;negemo;;
+17;Anx@anxiety;128;anx;;
+18;Anger;129;anger;;
+19;Sad@Sadness;130;sad;;
+20;Cogmech@Cognition;131;cogmech;;
+21;Cause@Causation;133;cause;;
+22;Insight;132;insight;;
+23;Discrep@Discrepancy;134;discrep;;
+24;Inhib@Inhibition;137;inhib;;
+25;Tentat@Tentativeness;135;tentat;;
+26;Certain@Certainty;136;certain;;
+27;Senses@Sensation/perception;140;percept;;
+28;See@Seeing;141;see;;
+29;Hear@Hearing;142;hear;;
+30;Touch@Touching;143;feel;;
+31;Social;121;social;;
+32;Comm@Communication;;;;Removed
+33;Othref@Reference to others;;;;Removed
+34;Friends;123;friend;;
+35;Family;122;family;;
+36;Humans;124;humans;;
+37;Time;253;time;;
+38;Past;13;past;;
+39;Present;14;present;;
+40;Future;15;future;;
+41;Space;252;space;;
+42;Up;;;;Removed
+43;Down;;;;Removed
+44;Incl@Inclusion;138;incl;;
+45;Excl@Exclusion;139;excl;;
+46;Motion;251;motion;;
+47;Occup@Occupation;354;work;;Included school, job and achieve
+48;School;;;;Removed
+49;Job;354;work;;
+50;Achieve@Achievement;355;achieve;;
+51;Leisure;356;leisure;;
+52;Home;357;home;;
+53;Sport@Sport/exercise;;;;Removed
+54;TV@TV/movies;;;;Removed
+55;Music;;;;Gone
+56;Money;358;money;;
+57;Metaph@Metaphysical;;;;Removed
+58;Relig@Religion;359;relig;;
+59;Death;360;death;;
+61;Body@Symptoms & sensations;148;health;;Split
+60;Physcal@Physical states/factors;146;bio;;
+61;Body@Symptoms & sensations;147;body;;Split
+62;Sexual@Sexual;149;sexual;;
+63;Eating@Eating/drinking;150;ingest;;
+64;Sleep@Sleeping/dreaming;;;;Removed
+65;Groom@Grooming;;;;Removed
+66;Swear@Swear words;22;swear;;
+67;Nonfl@Non-fluencies;463;nonfl;;
+68;Fillers;464;filler;;
+;;501;pronadv;;Added by us
+;;502;shehethey;;Added by us 
