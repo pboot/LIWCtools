@@ -6,6 +6,7 @@ from zipfile import *
 import copy 
 import re
 from chardet.universaldetector import UniversalDetector
+from collections import Counter
 
 def mungleWord(word):
     if word[0:1] == "'":
@@ -347,6 +348,40 @@ class LDict:
         for h in LDmodel.catDict.LDictHierarchies():
             print(h)
             self.catDict.addWordSet(h[1],self.catDict.getWords(h[0]))
+    def LDictCount(self,fileList):
+        """Creates a LIWC count report for a list of files"""
+        cs = {self.catDict.getDesc(c) for c in self.catDict.getDictCatSet()}
+        cr = LDictCountReport(cs)
+        for f in fileList:
+            t = LDictText(f)
+            for w in t.getWords():
+                cs = {self.catDict.getDesc(c) for c in self.catDict.getCatSetStarred(w.group(0).lower())}
+                cr.addWord(w.group(0).lower(),cs)
+        return cr
+    def LDictCountString(self,string):
+        """Creates LIWC counts for a string"""
+        patt = "[\w][\w\d-]*"
+        i = re.finditer(patt,string,flags=re.I)
+        cnt = Counter()
+        for w in i:
+            cnt['WC'] +=1
+            for c in {self.catDict.getDesc(c) for c in self.catDict.getCatSetStarred(w.group(0).lower())}:
+                cnt[c] +=1
+        return cnt
+    def LDictCountWordString(self,string):
+        """Creates LIWC word counts for a string"""
+        patt = "[\w][\w\d-]*"
+        i = re.finditer(patt,string,flags=re.I)
+        liwcCountDict = {}
+        wcount = Counter()
+        for w in i:
+            wcount[w.group(0).lower()] += 1
+        for w in wcount:
+            for c in {self.catDict.getDesc(c) for c in self.catDict.getCatSetStarred(w)}:
+                if c not in liwcCountDict:
+                    liwcCountDict[c] = Counter()
+                liwcCountDict[c][w] += wcount[w]
+        return liwcCountDict
     def LDictDDupAdd(self,inFile):
         """Finish deduplication of dictionary 
         
@@ -696,6 +731,8 @@ class LDictCatDict:
         return ws
     def getDesc(self, id):
         return self.catDict[str(int(id))][0]
+    def getCatDescList(self):
+        return [self.getDesc(c) for c in sorted(self.getDictCatSet(),key=lambda a:(int(a)))]
     def getCatLines(self):
         outStr = ""
         for c in sorted(self.catDict.keys(),key=lambda a:(int(a))):
