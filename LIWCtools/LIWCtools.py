@@ -309,8 +309,9 @@ class LDict:
             print('Not a dictfile')
         dictLine = dictFile.readline()[:-1]
         while dictLine != '%':
-            ls = dictLine.split()
-            self.catDict.addCat(ls[0],ls[1],set())
+            ls = dictLine.strip().split()
+            if ls[0].isdecimal():
+                self.catDict.addCat(ls[0],ls[1],set())
             dictLine = dictFile.readline()[:-1]
         dictLine = dictFile.readline()[:-1]
         while (dictLine != '%') and (dictLine != ''):
@@ -318,6 +319,7 @@ class LDict:
                 self.errLines.append(dictLine)
             else:
                 ls = dictLine.split()
+                print(dictLine)
                 self.wordSet.add(ls[0])
                 for j in ls[1:]:
                     self.catDict.addWord(j,ls[0])
