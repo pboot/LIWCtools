@@ -199,96 +199,107 @@ class LDictMatch:
         ehwold = LDold.catDict.LDictExtraHierarchicalWords(hold)
         hnew = LDnew.catDict.LDictHierarchies()
         ehwnew = LDnew.catDict.LDictExtraHierarchicalWords(hnew)
+        self.counts = {1:0,2:0,3:0,4:0,5:0}
+        trhead = '<tr><td>in old cat; not in new cat<br/>in old dict; not in new dict</td><td>in old cat; not in new cat<br>in old dict; in new dict</td><td>in old cat; in new cat<br/>in old dict; in new dict</td><td>in new cat; not in old cat<br/>in old dict; in new dict</td><td>in new cat; not in old cat<br/>in new dict; not in old dict</td></tr>'
         for key in sorted(self.dictNew.keys(),key=lambda a:(int(a))):
-            if key in LDnew.catDict.catDict:
-                html += '\n<a href="#top">top</a>\n<div id="'
-                html += key
-                html += '">\n<p><b>Category:</b> '
-                html += LDnew.catDict.getDesc(key)
-                html += ' ('
-                html += key
-                html += ')<br/><b>matches old cat:</b> '
-                if self.dictNew[key] == 'none':
-                    html += 'none'
-                else:
-                    for keyOld in self.dictNew[key]:
-                        html += LDold.catDict.getDesc(keyOld)
-                        html += ' ('
-                        html += keyOld
-                        html += ') '
-                html += '</p>\n<table><tr><td>in old cat; not in new cat<br/>in old dict; not in new dict</td><td>in old cat; not in new cat<br>in old dict; in new dict</td><td>in old cat; in new cat<br/>in old dict; in new dict</td><td>in new cat; not in old cat<br/>in old dict; in new dict</td><td>in new cat; not in old cat<br/>in new dict; not in old dict</td></tr><tr>'
-                oldCatSet = set()
-                self.cel={}
-                if self.dictNew[key] != 'none':
-                    for keyOld in self.dictNew[key]:
-                        oldCatSet = oldCatSet | LDold.catDict.getWords(keyOld)
-                    self.cel[1] = oldCatSet - LDnew.wordSet
-                    self.cel[2] = (oldCatSet & LDnew.wordSet) - LDnew.catDict.getWords(key)
-                    self.cel[3] = oldCatSet & LDnew.catDict.getWords(key)
-                    self.cel[4] = (LDnew.catDict.getWords(key) & LDold.wordSet) - oldCatSet
-                else:
-                    self.cel[1] = set()
-                    self.cel[2] = set()
-                    self.cel[3] = set()
-                    self.cel[4] = LDnew.catDict.getWords(key) & LDold.wordSet
-                self.cel[5] = LDnew.catDict.getWords(key) - LDold.wordSet
-                setstar = set()
-                setnostar = set()
-                for w in LDnew.catDict.getWords(key) | oldCatSet:
-                    if w.count('*') > 0:
-                        setstar.add(w)
-                    else:
-                        setnostar.add(w)
-                ehwtemp = set()
+            html += '\n<a href="#top">top</a>\n<div id="'
+            html += key
+            html += '">\n<p><b>Category:</b> '
+            html += LDnew.catDict.getDesc(key)
+            html += ' ('
+            html += key
+            html += ')<br/><b>matches old cat:</b> '
+            if self.dictNew[key] == 'none':
+                html += 'none'
+            else:
                 for keyOld in self.dictNew[key]:
-                    if keyOld in ehwold:
-                        ehwtemp = ehwtemp | ehwold[keyOld]
-                for c in self.cel:
-                    html += '\n<td>'
-                    for w in sorted(self.cel[c]):
-                        classstr = ''
-                        if c < 3:
-                            if (len(ehwtemp) > 0) & (w not in ehwtemp):
+                    html += LDold.catDict.getDesc(keyOld)
+                    html += ' ('
+                    html += keyOld
+                    html += ') '
+            html += '</p>\n<table>' + trhead + '<tr>'
+            oldCatSet = set()
+            self.cel={}
+            if self.dictNew[key] != 'none':
+                for keyOld in self.dictNew[key]:
+                    oldCatSet = oldCatSet | LDold.catDict.getWords(keyOld)
+                self.cel[1] = oldCatSet - LDnew.wordSet
+                self.cel[2] = (oldCatSet & LDnew.wordSet) - LDnew.catDict.getWords(key)
+                self.cel[3] = oldCatSet & LDnew.catDict.getWords(key)
+                self.cel[4] = (LDnew.catDict.getWords(key) & LDold.wordSet) - oldCatSet
+            else:
+                self.cel[1] = set()
+                self.cel[2] = set()
+                self.cel[3] = set()
+                self.cel[4] = LDnew.catDict.getWords(key) & LDold.wordSet
+            self.cel[5] = LDnew.catDict.getWords(key) - LDold.wordSet
+            setstar = set()
+            setnostar = set()
+            for w in LDnew.catDict.getWords(key) | oldCatSet:
+                if w.count('*') > 0:
+                    setstar.add(w)
+                else:
+                    setnostar.add(w)
+            ehwtemp = set()
+            for keyOld in self.dictNew[key]:
+                if keyOld in ehwold:
+                    ehwtemp = ehwtemp | ehwold[keyOld]
+            for c in self.cel:
+                html += '\n<td>'
+                firstletter = ''
+                for w in sorted(self.cel[c]):
+                    if firstletter != w[0]:
+                        html += '<span style="color:red;font-weight:bold">' + w[0] + ' </span>'
+                    firstletter = w[0]
+                    classstr = ''
+                    if c < 3:
+                        if (len(ehwtemp) > 0) & (w not in ehwtemp):
+                            classstr = 'noehw '
+                    else:
+                        if key in ehwnew:
+                            if w not in ehwnew[key]:
                                 classstr = 'noehw '
-                        else:
-                            if key in ehwnew:
-                                if w not in ehwnew[key]:
-                                    classstr = 'noehw '
-                        match = False
-                        if w.count('*') > 0:
-                            pos = w.find('*')
-                            for w1 in setnostar:
-                                if w[:pos] == w1[:pos]:
-                                    match = True
-                                    break
-                            if match == False:
-                                for w1 in setstar:
-                                    if w != w1:
-                                        pos1 = w1.find('*')
-                                        pos2 = min(pos1,pos)
-                                        if w[:pos2] == w1[:pos2]:
-                                            match = True
-                                            break
-                        else:
+                    match = False
+                    if w.count('*') > 0:
+                        pos = w.find('*')
+                        for w1 in setnostar:
+                            if w[:pos] == w1[:pos]:
+                                match = True
+                                break
+                        if match == False:
                             for w1 in setstar:
-                                pos = w1.find('*')
-                                if w[:pos] == w1[:pos]:
-                                    match = True
-                                    break
-                        if match == True:
-                            classstr += 'match'
-                        if classstr == '':
-                            html += w
-                        else:
-                            html += '<span class="'+classstr+'">'+w+'</span>'
-                        html += ' '
-                    html += '</td>'
-                html += '</tr><tr>'
-                for c in self.cel:
-                    html += '\n<td>'
-                    html += str(len(self.cel[c]))
-                    html += '</td>'
-                html += '</tr></table></div>'
+                                if w != w1:
+                                    pos1 = w1.find('*')
+                                    pos2 = min(pos1,pos)
+                                    if w[:pos2] == w1[:pos2]:
+                                        match = True
+                                        break
+                    else:
+                        for w1 in setstar:
+                            pos = w1.find('*')
+                            if w[:pos] == w1[:pos]:
+                                match = True
+                                break
+                    if match == True:
+                        classstr += 'match'
+                    if classstr == '':
+                        html += w
+                    else:
+                        html += '<span class="'+classstr+'">'+w+'</span>'
+                    html += ' '
+                html += '</td>'
+            html += '</tr><tr>'
+            for c in self.cel:
+                html += '\n<td>'
+                cellcount = len(self.cel[c])
+                html += str(cellcount)
+                self.counts[c] += cellcount
+                html += '</td>'
+            html += '</tr></table></div>'
+        html += '\n<div><p><b>Totals</b><table>' + trhead + '<tr>'
+        for c in sorted(self.counts):
+            html += '<td>' + str(self.counts[c]) + '</td>'
+        html += '</table></div>'
         html += '</body></html>'
         outFile= open(outFile,'w')
         outFile.write(html)
@@ -318,7 +329,7 @@ class LDict:
             if dictLine.find('(') + dictLine.find('<') > -2:
                 self.errLines.append(dictLine)
             else:
-                ls = dictLine.split()
+                ls = dictLine.split('\t')
                 print(dictLine)
                 self.wordSet.add(ls[0])
                 for j in ls[1:]:
