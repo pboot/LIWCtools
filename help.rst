@@ -38,6 +38,7 @@ Producing an HTML report about a dictionary's contents
    LD.LDictHtml(...report filename...)
 
 This will produce a report that shows the words in each of the categories. For each category it will also indicate the extrahierarchical words (see below).
+If the dictionary is not stored as utf8, add an encoding parameter to LDICT. 
 
 
 
@@ -105,6 +106,27 @@ Here is an extract of the script that generates the new dictionary.
 Using a LIWC dictionary
 -----------------------
 
+Count words in LIWC categoris for a given string
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Output is a Python Counter containing frequencies of words in the categories for the dictionary in a certain string. This in effect 
+replicates LIWC's main functionality as the counter can be used to create a report containing the relative frequencies.  
+
+::
+
+    LD = LDict(...dict filename...)
+    cr = LD.LDictCountString(...string variable...)   # a Counter object
+
+Creates a LIWC count report for a list of files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This creates an LDictCountReport object, an object that for all categories holds the words and the word counts in a list of files. 
+
+::
+
+    LD = LDict(...dict filename...)
+    cr = LD.LDictCount(...list of text files...)   # an LDictCountReport object
+
 Create a zipfile of the main words for each category in a set of text files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -113,8 +135,9 @@ This creates a zip file that holds, for each category, the words that occur most
 ::
 
     LD = LDict(...dict filename...)
-    cr = LD.LDictCount(...list of text files...)   # an LDictCountReport object
-    cr.write(...output filename..., ...label...)   # label is extra string added to names of entries in zipfile
+    cr = LD.LDictCount(...list of text files...)				# an LDictCountReport object
+    cr.write(...output filename..., ...label..., ...freq...)	# label is extra string added to names of entries in zipfile
+																# freq is the relative frequency below which to stop printing (default: 0.015)
 
 
 

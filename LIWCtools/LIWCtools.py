@@ -40,26 +40,30 @@ class LDictCountReport:
         self.catCount = dict.fromkeys(catList,0)
         self.catWordCount = {k:{} for k in catList}
         self.catList = catList
-    def addWord(self, word,catList):
+    def addWord(self, word,catList,count=1):
         """increases counters for word in cats"""
         for cat in catList:
-            self.catCount[cat] += 1
+            self.catCount[cat] += count
             if word in self.catWordCount[cat]:
-                self.catWordCount[cat][word] += 1
+                self.catWordCount[cat][word] += count
             else:
-                self.catWordCount[cat][word] = 1
-    def write(self,zipout,fq):
+                self.catWordCount[cat][word] = count
+    def write(self,zipout,fq='',freq=0.015):
 #        print(self)
         """Writes frequencies to zipfile"""
         zipf = ZipFile(zipout,'w')
         kop = 'word;freq;relfreq\n'
         for cat in self.catList:
-            outfile = cat + '.' + fq + '.csv'
+            if fq != '':
+                outfile = cat + '.' + fq + '.csv'
+            else:
+                outfile = cat + '.csv'
             txt = kop
             sumf = sum(self.catWordCount[cat].values()) 
             for w in sorted(self.catWordCount[cat].keys()):
                 c = self.catWordCount[cat][w]
-                if c/sumf > .015:
+#                print(c,sumf,freq,c/sumf > freq)
+                if c/sumf > freq:
                     txt += w
                     txt += ';' + str(c)
                     txt += ';' + str(100*c/sumf).replace('.',',')
@@ -306,18 +310,21 @@ class LDictMatch:
         outFile.close()
 
 class LDict:
-    'LIWC dictionary'
-    def __init__(self, fileName):
+    """LIWC dictionary"""
+    def __init__(self, fileName,encoding='utf-8'):
+        """Reads a dictionary file if onse is provided, sets up the category dictionary object and the wordSet"""
         self.fileName = fileName
         self.errLines = []
         self.wordSet = set()
         self.catDict = LDictCatDict({})
         if fileName == '':
             return
-        dictFile= open(fileName,'r')
+        dictFile= open(fileName,'r',encoding=encoding)
+        print('Reading dictionary file', fileName)
+        print('encoding =', encoding)
         dictLine = dictFile.readline()[:-1]
         if dictLine != '%':
-            print('Not a dictfile')
+            print('Not a dictfile: ',dictLine)
         dictLine = dictFile.readline()[:-1]
         while dictLine != '%':
             ls = dictLine.strip().split()
@@ -330,13 +337,16 @@ class LDict:
                 self.errLines.append(dictLine)
             else:
                 ls = dictLine.split('\t')
-                print(dictLine)
+#                print(dictLine)
                 self.wordSet.add(ls[0])
                 for j in ls[1:]:
                     self.catDict.addWord(j,ls[0])
             dictLine = dictFile.readline()[:-1]
-        dictFile.close()
+        dictFile.close()        
+        print('number of words :',len(self.wordSet))
+        print('number of categories :',len(self.catDict.catDict.keys()))
     def LDictCompare(self,LDnew):
+        """Compares two dictionaries"""
         print('List differences between dictionaries ',self.LDictFileName(),' and ',LDnew.LDictFileName())
         if self.errLines != LDnew.errLines:
             print('Old unhandled lines: ',self.errLines)
@@ -471,8 +481,10 @@ class LDict:
         self.wordSet = self.wordSet - outSet
         return outSet
     def LDictEmptyCat(self,cat,LDmodel):
+        """Removes all words from a category"""
         self.catDict.emptyCat(cat,LDmodel)
     def LDictFileName(self):
+        """Returns the filename belonging to a dictionary, -none- if it is a newly created dictionary"""
         if self.fileName != '':
             return self.fileName
         else:
@@ -552,6 +564,7 @@ class LDict:
             zipf.writestr(outfile,txt)
         zipf.close()
     def LDictHtml(self,outFileName):
+        """Creates HTML representation of dictionary"""
         html = '<html>\n<head><style type="text/css">\n *{font-family: Arial,Verdana;}\
         .noehw{color:grey}</style><title>'
         html += self.fileName
@@ -572,12 +585,15 @@ class LDict:
         outFile.write(html)
         outFile.close()
     def LDictPrint(self):
+        """Prints components of a dictionary"""
         print(self.fileName)
         print(self.wordSet)
         self.catDict.Lprint()
     def LDictRestoreWS(self):
+        """Re-creates dictionary wordset from the categories"""
         self.wordSet = self.catDict.getAllWords()
     def LDictSubset(self,listcat):
+        """Returns a new dictionary containing only selected lists categories from a given dictionary """
         LDnew = LDict('')
         for c in listcat:
             LDnew.catDict.addCat(c,self.catDict.getDesc(c),self.catDict.getWords(c))
@@ -664,6 +680,7 @@ class LDict:
         self.LDictRestoreWS()
         report.LDictURPrint()
     def LDictWrite(self,outFile):
+        """Very simple dictionary print"""
         if os.path.isfile(outFile):
             print(outFile,' already exists!')
             return
@@ -677,17 +694,22 @@ class LDict:
 
 
 class LDictCatDict:
-    'LIWC dictionary category list'
+    """LIWC dictionary category list"""
     def __init__(self, catDict):
+        """Creates empty dictionary category list"""
         self.catDict = {}
     def addCat(self, id, desc, wordSet):
+        """Adds new category with id, description and wordset into category dict"""
         self.catDict[str(int(id))]=tuple([desc,wordSet])
     def addWord(self, id, word):
+        """Add word into existing category"""
         self.catDict[str(int(id))][1].add(word)
     def addWordSet(self, id, wordSet):
+        """Adds set of words to existing category"""
         self.catDict[str(int(id))] = (self.getDesc(id),self.getWords(id) | wordSet)
 # was         self.catDict[id]=tuple([desc,wordSet])
     def catDictCatList(self,cat,dirname):
+        """Creates a list of words for a category in a given directory on disk"""
         outStr = ''
         for w in sorted(self.getWords(cat)):
             outStr = outStr + w + '\n'
@@ -695,9 +717,11 @@ class LDictCatDict:
         lexFile.write(outStr)
         lexFile.close
     def catDictCatsList(self,dirname):
+        """Creates lists of words for all categories in a given directory on disk"""
         for c in self.catDict:
             self.catDictCatList(c,dirname)
     def catDictCompare(self,newCatDict):
+        """Does and prints simple category dictionary compare"""
         co = self.getDictCatSet()
         cn = newCatDict.getDictCatSet()
         if co != cn:
@@ -726,27 +750,34 @@ class LDictCatDict:
         if samewordsincats == True:
             print('Same words in corresponding categories (if any)')
     def dropCat(self,cat,LDmodel):
+        """Removes a category from the dictionary and removes its words from the categories that it is included in"""
         for h in LDmodel.catDict.LDictHierarchies():
             if h[0] == str(cat):
                 self.dropWordSet(h[1],self.getWords(h[0]))
         del(self.catDict[str(cat)])
     def dropWord(self, id, word):
+        """Drops a word from a category"""
         self.catDict[str(int(id))][1].discard(word)
     def emptyCat(self,cat,LDmodel):
+        """Empties a category from the dictionary and removes its words from the categories that it is included in"""
         for h in LDmodel.catDict.LDictHierarchies():
             if h[0] == str(cat):
                 self.dropWordSet(h[1],self.getWords(h[0]))
         self.catDict[str(int(cat))] = (self.getDesc(cat),set())
     def getAllWords(self):
+        """Returns all words from a dictionary"""
         ws = set()
         for c in self.catDict:
             ws = ws | self.catDict[c][1]
         return ws
     def getDesc(self, id):
+        """Returns the description of a category"""
         return self.catDict[str(int(id))][0]
     def getCatDescList(self):
+        """Returns a list of all category descriptions sorted by the id of the category"""
         return [self.getDesc(c) for c in sorted(self.getDictCatSet(),key=lambda a:(int(a)))]
     def getCatLines(self):
+        """Returns a string of lines containing catagory id's and description, sorted by category id"""
         outStr = ""
         for c in sorted(self.catDict.keys(),key=lambda a:(int(a))):
             outStr += str(c)
@@ -755,12 +786,14 @@ class LDictCatDict:
             outStr += "\n"
         return(outStr)
     def getCats(self, word):
+        """Returns a string containing all category id's of the categories that contain a word"""
         r = ''
         for c in sorted(self.getCatSet(word)):
             r += c
             r += ' '
         return r
     def getCatSet(self, word):
+        """Returns a set containing all category id's of the categories that contain a word"""
         cs = set()
         for c in self.catDict:
             if word in self.catDict[c][1]:
@@ -768,6 +801,7 @@ class LDictCatDict:
                     cs.add(c)
         return cs
     def getCatSetStarred(self, word):
+        """Returns a set containing all category id's of the categories that would retrun a hit for the word taking into account the wildcards"""
         cs = set()
         for c in self.catDict:
             if word in self.catDict[c][1]:
@@ -783,11 +817,13 @@ class LDictCatDict:
                     break
         return cs
     def getDictCatSet(self):
+        """Returns a set containing al category ids from a dictionary """
         cs = set()
         for c in self.catDict.keys():
             cs.add(c)
         return cs
     def getWordLines(self):
+        """Creates string containing a line for each word in the dict, with the categories that it is included in"""
         outStr = ""
         for w in sorted(self.getAllWords(),key=str.lower):
             outStr += w
@@ -797,10 +833,13 @@ class LDictCatDict:
             outStr += "\n"
         return outStr
     def getWords(self, id):
+        """Returns the words in a category"""
         return self.catDict[str(int(id))][1]
     def dropWordSet(self, id, wordSet):
+        """Remove a set of words from a category"""
         self.catDict[str(int(id))] = (self.getDesc(id),self.getWords(id) - wordSet)
     def LDictHierarchies(self):
+        """Creates a list of pairs of (included cat, including cat)"""
         l = []
         for s2 in self.catDict:
             for s1 in self.catDict:
@@ -809,6 +848,7 @@ class LDictCatDict:
                         l.append((s1,s2))
         return l
     def LDictExtraHierarchicalWords(self,inclusions):
+        """Creates a dictionary of extracategorical words (words not in included categories) for all categories that have included categories"""
         tl = set()
         for i in inclusions:
             if i[1] not in tl:
@@ -825,9 +865,11 @@ class LDictCatDict:
             LDictEHW[t]=r
         return LDictEHW
     def Lprint(self):
+        """Prints catdict object"""
         for cat in self.catDict:
             print(cat,self.catDict[cat])
     def htmlLinkList(self,env):
+        """Creates list of links to category info in dictionary print"""
         r = ''
         s = sorted(self.catDict.keys(),key=lambda a:(int(a)))
         for cat in s:
@@ -845,6 +887,7 @@ class LDictCatDict:
             r += '</a> '
         return r
     def htmlDivList(self):
+        """Prints the catagories in the dictionary html print"""
         r = ''
         h = self.LDictHierarchies()
         ehw = self.LDictExtraHierarchicalWords(h)
