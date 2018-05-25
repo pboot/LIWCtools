@@ -563,7 +563,7 @@ class LDict:
                 txt += '\n'
             zipf.writestr(outfile,txt)
         zipf.close()
-    def LDictHtml(self,outFileName):
+    def LDictHtml(self,outFileName,encoding='utf-8'):
         """Creates HTML representation of dictionary"""
         html = '<html>\n<head><style type="text/css">\n *{font-family: Arial,Verdana;}\
         .noehw{color:grey}</style><title>'
@@ -581,7 +581,7 @@ class LDict:
         html += '</p>'
         html += self.catDict.htmlDivList()
         html += '</body></html>'
-        outFile= open(outFileName,'w')
+        outFile= open(outFileName,'w',encoding=encoding)
         outFile.write(html)
         outFile.close()
     def LDictPrint(self):
