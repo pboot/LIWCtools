@@ -483,6 +483,17 @@ class LDict:
     def LDictEmptyCat(self,cat,LDmodel):
         """Removes all words from a category"""
         self.catDict.emptyCat(cat,LDmodel)
+    def LDictExpand(self,wl):
+        """Expands wildcard in dictionary based on wordlist"""
+        for term in self.catDict.getAllWords():
+            if '*' in term:
+                cats = self.catDict.getCatSet(term)
+                for cat in cats:
+                    self.catDict.dropWord(cat,term)
+                for word in [word for word in wl if word.startswith(term[:-1])]:
+                    for cat in cats:
+                        self.catDict.addWord(cat, word)
+        self.LDictRestoreWS()
     def LDictFileName(self):
         """Returns the filename belonging to a dictionary, -none- if it is a newly created dictionary"""
         if self.fileName != '':
@@ -679,7 +690,7 @@ class LDict:
                                 else: report.addCat('splitwords')
         self.LDictRestoreWS()
         report.LDictURPrint()
-    def LDictWrite(self,outFile):
+    def LDictWrite(self,outFile,encoding='utf-8'):
         """Very simple dictionary print"""
         if os.path.isfile(outFile):
             print(outFile,' already exists!')
@@ -688,7 +699,7 @@ class LDict:
         outStr += self.catDict.getCatLines()
         outStr += '%\n'
         outStr += self.catDict.getWordLines()
-        dictFile= open(outFile,'w')
+        dictFile= open(outFile,'w',encoding=encoding)
         dictFile.write(outStr)
         dictFile.close
 
