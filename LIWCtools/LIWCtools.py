@@ -317,10 +317,10 @@ class LDict:
         self.errLines = []
         self.wordSet = set()
         self.catDict = LDictCatDict({})
+        print('Reading dictionary file', fileName)
         if fileName == '':
             return
         dictFile= open(fileName,'r',encoding=encoding)
-        print('Reading dictionary file', fileName)
         print('encoding =', encoding)
         dictLine = dictFile.readline()[:-1]
         if dictLine != '%':
@@ -510,6 +510,22 @@ class LDict:
                 cs = {self.catDict.getDesc(c) for c in self.catDict.getCatSetStarred(w.group(0).lower())}
                 cr.addWord(w.group(0).lower(),cs)
         return cr
+    def LDictEdit(self,updfile,encoding='utf-8'):
+        f = open(updfile,'r',encoding=encoding)
+        lines = f.read().split('\n')
+        for line in [line for line in lines if line != '']:
+            l = line.split('\t')
+            if l[0] == 'del':
+                if l[2] == '*':
+                    self.catDict.dropWordAllCats(l[1])
+                elif len(l[2].split()) > 0:
+                    for cat in l[2].split():
+                        self.catDict.dropWord(cat,l[1])
+                else: self.catDict.dropWord(l[2],l[1])
+            else:
+                print(line)
+                raise ValueError('Unexpected function in edit file')
+        self.LDictRestoreWS()
     def LDictFreq(self,freqlist,zipout):
         """Based on a word frequency list as produced by Stylo, creates a zipfile 
         that holds csv fils holding the most frequent words in each category, once 
@@ -769,6 +785,10 @@ class LDictCatDict:
     def dropWord(self, id, word):
         """Drops a word from a category"""
         self.catDict[str(int(id))][1].discard(word)
+    def dropWordAllCats(self, word):
+        """Drops a word from all categories"""
+        for cat in self.getCatSet(word):
+            self.catDict[cat][1].discard(word)
     def emptyCat(self,cat,LDmodel):
         """Empties a category from the dictionary and removes its words from the categories that it is included in"""
         for h in LDmodel.catDict.LDictHierarchies():
