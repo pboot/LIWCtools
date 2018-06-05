@@ -522,6 +522,8 @@ class LDict:
                     for cat in l[2].split():
                         self.catDict.dropWord(cat,l[1])
                 else: self.catDict.dropWord(l[2],l[1])
+            elif l[0] == 'add':
+                self.catDict.addWord(l[2],l[1])
             else:
                 print(line)
                 raise ValueError('Unexpected function in edit file')
