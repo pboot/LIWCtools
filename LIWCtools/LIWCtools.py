@@ -8,6 +8,8 @@ import re
 from chardet.universaldetector import UniversalDetector
 from collections import Counter
 
+tokpatt = "([\w][\w\d-]*)([\w][\w]*'ll)|([\w][\w]*'ve)|(it's)|([\w][\w]*'t)|([\w][\w]*'d)|(where's)|(what's)|(she's)|(he's)|([\w][\w]*'re)|(i'm)|(that's)|(let's)|([\w][\w\d-]*)"
+
 def mungleWord(word):
     if word[0:1] == "'":
         word = word[1:]
@@ -27,11 +29,10 @@ class LDictText:
         self.detector.close()
         inFile = open(self.fileName,'r',encoding=self.detector.result['encoding'],errors='replace')
 #        patt = "[\p{L}][\p{L}\p{Nd}-]*"
-        patt = "[\w][\w\d-]*"
         t = inFile.read()
 #        print(t[1:150])
         inFile.close()
-        return(re.finditer(patt,t,flags=re.I))
+        return(re.finditer(tokpatt,t,flags=re.I))
 
 class LDictCountReport:
     """Holds categorycounts and word frequencies by category"""
@@ -383,8 +384,7 @@ class LDict:
         return cr
     def LDictCountString(self,string):
         """Creates LIWC counts for a string"""
-        patt = "[\w][\w\d-]*"
-        i = re.finditer(patt,string,flags=re.I)
+        i = re.finditer(tokpatt,string,flags=re.I)
         cnt = Counter()
         for w in i:
             cnt['WC'] +=1
@@ -393,8 +393,7 @@ class LDict:
         return cnt
     def LDictCountWordString(self,string):
         """Creates LIWC word counts for a string"""
-        patt = "[\w][\w\d-]*"
-        i = re.finditer(patt,string,flags=re.I)
+        i = re.finditer(tokpatt,string,flags=re.I)
         liwcCountDict = {}
         wcount = Counter()
         for w in i:
