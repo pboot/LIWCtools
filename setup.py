@@ -16,10 +16,11 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.1',
+    version='0.1.3.2',
 
     description='Tools for working with LIWC dictionaries',
     long_description=long_description,
+    # long_description_content_type='text/plain',
 
     # The project's main homepage.
     url='https://github.com/pboot/liwctools',
