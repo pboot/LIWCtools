@@ -333,15 +333,23 @@ class LDict:
                 self.catDict.addCat(ls[0],ls[1],set())
             dictLine = dictFile.readline()[:-1]
         dictLine = dictFile.readline()[:-1]
-        while (dictLine != '%') and (dictLine != ''):
-            if dictLine.find('(') + dictLine.find('<') > -2:
+        emptylines = 0
+        while (dictLine != '%'):
+            if emptylines > 10:
+                break
+            if dictLine == '':
+                emptylines += 1
+            elif dictLine.find('(') + dictLine.find('<') > -2:
+                emptylines = 0
                 self.errLines.append(dictLine)
             else:
+                emptylines = 0
                 ls = dictLine.split('\t')
 #                print(dictLine)
                 self.wordSet.add(ls[0])
                 for j in ls[1:]:
-                    self.catDict.addWord(j,ls[0])
+                    if j != '':
+                        self.catDict.addWord(j,ls[0])
             dictLine = dictFile.readline()[:-1]
         dictFile.close()        
         print('number of words :',len(self.wordSet))
@@ -923,10 +931,10 @@ class LDictCatDict:
         r = ''
         h = self.LDictHierarchies()
         ehw = self.LDictExtraHierarchicalWords(h)
-        print(ehw)
+#        print(ehw)
         s = sorted(self.catDict.keys(),key=lambda a:(int(a)))
         for cat in s:
-            print(cat)
+#            print(cat)
             r += '\n<a href="#top">top</a>\n<div id="'
             r += cat
             r += '">\n<h2>Category '
