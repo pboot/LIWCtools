@@ -16,7 +16,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.3.2',
+    version='0.1.3.3',
 
     description='Tools for working with LIWC dictionaries',
     long_description=long_description,
@@ -27,7 +27,7 @@ setup(
 
     # Author details
     author='Peter Boot',
-    author_email='pboot@xs4all.nl',
+    author_email='pb@peterboot.nl',
 
     # Choose your license
     license='MIT',
